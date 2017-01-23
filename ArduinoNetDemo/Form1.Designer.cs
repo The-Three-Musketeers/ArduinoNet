@@ -28,21 +28,36 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.btnFlash = new System.Windows.Forms.Button();
             this.SuspendLayout();
+            // 
+            // btnFlash
+            // 
+            this.btnFlash.Location = new System.Drawing.Point(226, 137);
+            this.btnFlash.Name = "btnFlash";
+            this.btnFlash.Size = new System.Drawing.Size(136, 23);
+            this.btnFlash.TabIndex = 0;
+            this.btnFlash.Text = "Turn On LED";
+            this.btnFlash.UseVisualStyleBackColor = true;
+            this.btnFlash.Click += new System.EventHandler(this.btnFlash_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(609, 298);
+            this.Controls.Add(this.btnFlash);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private System.Windows.Forms.Button btnFlash;
     }
 }
 

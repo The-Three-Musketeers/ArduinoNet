@@ -9,12 +9,14 @@ namespace ArduinoNet
         Null = 0,
         Button = 1,
         Slide = 2,
-        Knob = 3
+        Knob = 3,
+        LED = 4
     }
 
     public enum ArduinoCommandType : int
     {
-        Reset = 0
+        Reset = 0,
+        LED_1 = 1
     }
 
     public class ArduinoCommand

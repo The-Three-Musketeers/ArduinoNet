@@ -11,6 +11,9 @@ namespace ArduinoNetDemo
 {
     public partial class Form1 : Form
     {
+        Serial serial;
+        bool isLED_ON = false;
+
         public Form1()
         {
             InitializeComponent();
@@ -18,7 +21,7 @@ namespace ArduinoNetDemo
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            var serial = new Serial();
+            serial = new Serial();
             serial.Connect();
 
             serial.OnButtonPressed += Serial_OnButtonPressed;
@@ -27,6 +30,20 @@ namespace ArduinoNetDemo
         private void Serial_OnButtonPressed(object sender, ArduinoEventArg arg)
         {
             MessageBox.Show("Button Pressed");
+        }
+
+        private void btnFlash_Click(object sender, EventArgs e)
+        {
+            int value = isLED_ON ? 0 : 1;
+            var command = new ArduinoCommand(ArduinoCommandType.LED_1, value);
+            serial.SendCommand(command);
+            this.btnFlash.Text = "Turn " + (isLED_ON ? "On" : "Off") + " LED";
+            isLED_ON = !isLED_ON;
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Environment.Exit(Environment.ExitCode);
         }
     }
 }

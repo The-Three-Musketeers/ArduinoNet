@@ -77,6 +77,7 @@ namespace ArduinoNet
             //      1: button
             //      2: slide
             //      3: knob
+            //      4: led
             // [1-] value in int
             int strlen = command.Length;
             string commandType = command.Substring(strlen - 1, 1); // get the command type
@@ -104,7 +105,7 @@ namespace ArduinoNet
 
         private string ConvertCommandToString(ArduinoCommand command)
         {
-            return string.Format("{0}{1}", command.ArduinoCommandType, command.Value);
+            return string.Format("{0}{1}", (int)command.ArduinoCommandType, command.Value);
         }
 
         private void Loop()
@@ -132,7 +133,7 @@ namespace ArduinoNet
 
         private void Write(string value)
         {
-            stream.WriteLine(value);
+            stream.Write(value);
             stream.BaseStream.Flush();
         }
 
