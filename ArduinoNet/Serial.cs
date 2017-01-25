@@ -11,18 +11,61 @@ namespace ArduinoNet
         private string serialName;
         private SerialPort stream;
         private Queue<ArduinoCommand> commandQueue;
+        private static Dictionary<string, Serial> currentConnection = new Dictionary<string, Serial>();
 
+        /// <summary>
+        /// Used to signal any Arduino event, such as button press
+        /// </summary>
+        /// <param name="sender">Object that fired this event</param>
+        /// <param name="arg">Argument that specifies all the information</param>
         public delegate void ArduinoEventHandler(object sender, ArduinoEventArg arg);
 
-        public event ArduinoEventHandler OnButtonPressed;
+        private event ArduinoEventHandler _onButtonPressed;
 
+        /// <summary>
+        /// Event called when any button is pressed
+        /// </summary>
+        public event ArduinoEventHandler OnButtonPressed
+        {
+            add
+            {
+                _onButtonPressed -= value;
+                _onButtonPressed += value;
+            }
+            remove
+            {
+                _onButtonPressed -= value;
+            }
+        }
+
+        /// <summary>
+        /// Event called when the value of the slider is changed
+        /// </summary>
         public event ArduinoEventHandler OnSlideChanged;
 
+        /// <summary>
+        /// Event called when the value of the knob is changed
+        /// </summary>
         public event ArduinoEventHandler OnKnobChanged;
 
-        public Serial()
+        private Serial(string serialName)
         {
             commandQueue = new Queue<ArduinoCommand>();
+            this.serialName = serialName;
+
+            stream = new SerialPort(serialName, 9600);
+
+            //stream.ReadTimeout = 50;
+            stream.Open();
+            // use another thread to read the incoming message
+            ThreadStart backgroundRef = new ThreadStart(Loop);
+            Thread backgroundThread = new Thread(backgroundRef);
+
+            currentConnection.Add(serialName, this);
+
+            // start the background thread
+            backgroundThread.Start();
+
         }
         
         internal static string GetArduinoSerialName()
@@ -46,26 +89,41 @@ namespace ArduinoNet
 
         public void SendCommand(ArduinoCommand command)
         {
-            commandQueue.Enqueue(command);
+            var serial = currentConnection[serialName];
+            serial.commandQueue.Enqueue(command);
         }
 
-        public bool Connect()
+        /// <summary>
+        /// This is a factory method to setup serial connection to the Arduino.
+        /// Use this method if you don't know the device ID.
+        /// This will prevent multiple instantiation, that is, if called multiple times, only one instance will be returned. 
+        /// </summary>
+        /// <returns>An Arduino serial instance connected to the serial port</returns>
+        public static Serial Connect()
         {
-            serialName = GetArduinoSerialName();
+            var serialName = GetArduinoSerialName();
+            return Connect(serialName);
+        }
+
+        /// <summary>
+        /// This is a factory method to setup serial connection to the Arduino.
+        /// This will prevent multiple instantiation, that is, if called multiple times, only one instance will be returned. 
+        /// </summary>
+        /// <param name="serialName">Name of the device ID, e.g., COM1 or /tty/ACM0 on Linux</param>
+        /// <returns>An Arduino serial instance connected to the serial port</returns>
+        public static Serial Connect(string serialName)
+        {
             if (string.IsNullOrEmpty(serialName))
-                return false;
-            stream = new SerialPort(serialName, 9600);
-
-            //stream.ReadTimeout = 50;
-            stream.Open();
-            // use another thread to read the incoming message
-            ThreadStart backgroundRef = new ThreadStart(Loop);
-            Thread backgroundThread =  new Thread(backgroundRef);
-
-            // start the background thread
-            backgroundThread.Start();
-
-            return true;
+                return null;
+            if (currentConnection.ContainsKey(serialName))
+            {
+                // already connected;
+                return currentConnection[serialName];
+            }
+            else
+            {
+                return new Serial(serialName);
+            }
         }
 
         private void HandleCommand(string command)
@@ -90,7 +148,7 @@ namespace ArduinoNet
             switch (cmd)
             {
                 case Command.Button:
-                    OnButtonPressed(this, arg);
+                    _onButtonPressed(this, arg);
                     break;
                 case Command.Knob:
                     OnKnobChanged(this, arg);

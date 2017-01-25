@@ -21,8 +21,7 @@ namespace ArduinoNetDemo
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            serial = new Serial();
-            serial.Connect();
+            serial = Serial.Connect();
 
             serial.OnButtonPressed += Serial_OnButtonPressed;
         }
