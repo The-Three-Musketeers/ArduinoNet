@@ -138,9 +138,9 @@ namespace ArduinoNet
             //      4: led
             // [1-] value in int
             int strlen = command.Length;
-            string commandType = command.Substring(strlen - 1, 1); // get the command type
+            string commandType = command.Substring(0, 1); // get the command type
             Command cmd = (Command)(int.Parse(commandType));
-            int value =  strlen > 1? int.Parse(command.Substring(strlen - 2)) : 0;  // deal with null
+            int value =  strlen > 1? int.Parse(command.Substring(strlen - 1)) : 0;  // deal with null
 
             // construct an event arg
             // TODO:  added this string value once we have more buttons
@@ -148,13 +148,13 @@ namespace ArduinoNet
             switch (cmd)
             {
                 case Command.Button:
-                    _onButtonPressed(this, arg);
+                    _onButtonPressed?.Invoke(this, arg);
                     break;
                 case Command.Knob:
-                    OnKnobChanged(this, arg);
+                    OnKnobChanged?.Invoke(this, arg);
                     break;
                 case Command.Slide:
-                    OnSlideChanged(this, arg);
+                    OnSlideChanged?.Invoke(this, arg);
                     break;
                 default:
                     break;

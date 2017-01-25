@@ -28,7 +28,7 @@ namespace ArduinoNetDemo
 
         private void Serial_OnButtonPressed(object sender, ArduinoEventArg arg)
         {
-            MessageBox.Show("Button Pressed");
+            MessageBox.Show("Button " + arg.Value.ToString() + " Pressed");
         }
 
         private void btnFlash_Click(object sender, EventArgs e)
