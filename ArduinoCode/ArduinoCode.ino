@@ -4,7 +4,7 @@
 
 // constants won't change. They're used here to
 // set pin numbers:
-const int buttonPins[NUM_BUBTTON] = {2, 3, 4, 5};     // the numbers of the pushbutton pins
+const int buttonPins[NUM_BUBTTON] = {2, 3, 6, 5};     // the numbers of the pushbutton pins
 int preButtonState[NUM_BUBTTON] = {LOW, LOW, LOW, LOW};
 const int ledPin =  3;      // the number of the LED pin
 
@@ -40,7 +40,7 @@ void loop() {
     if (buttonState == HIGH) {
       if (preButtonState[buttonPin] == LOW) { // this is a button press
         preButtonState[buttonPin] = HIGH;
-        Serial.write(10 + buttonPin);
+        Serial.write(10 + i);
       }
     } else {
 
