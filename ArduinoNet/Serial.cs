@@ -140,7 +140,7 @@ namespace ArduinoNet
             int strlen = command.Length;
             string commandType = command.Substring(0, 1); // get the command type
             Command cmd = (Command)(int.Parse(commandType));
-            int value =  strlen > 1? int.Parse(command.Substring(strlen - 1)) : 0;  // deal with null
+            int value =  strlen > 1? int.Parse(command.Substring(1)) : 0;  // deal with null
 
             // construct an event arg
             // TODO:  added this string value once we have more buttons
@@ -195,13 +195,14 @@ namespace ArduinoNet
             stream.BaseStream.Flush();
         }
 
-        private string Read(int timeout = 1000)
+        private string Read(int timeout = 200)
         {
             stream.ReadTimeout = timeout;
             try
             {
-                var result = stream.ReadByte().ToString();
-                return result;
+                var result1 = stream.ReadByte().ToString();
+                var result2 = stream.ReadByte().ToString();
+                return result1 + result2;
             }
             catch (TimeoutException)
             {

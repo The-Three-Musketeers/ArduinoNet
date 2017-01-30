@@ -24,6 +24,16 @@ namespace ArduinoNetDemo
             serial = Serial.Connect();
 
             serial.OnButtonPressed += Serial_OnButtonPressed;
+
+            serial.OnKnobChanged += Serial_OnKnobChanged;
+        }
+
+        private void Serial_OnKnobChanged(object sender, ArduinoEventArg arg)
+        {
+            lblKnob.Invoke(new MethodInvoker(delegate
+            {
+                lblKnob.Text = string.Format("Knob value is {0}", arg.Value);
+            }));
         }
 
         private void Serial_OnButtonPressed(object sender, ArduinoEventArg arg)
