@@ -1,15 +1,12 @@
 #include <SoftwareSerial.h>
 
-#define NUM_BUBTTON 0
+#define NUM_BUBTTON 1
 #define KNOB_PIN 0
-
-#define KNOB_THRESHOLD 10
-#define KNOB_JUMP 50
 
 // constants won't change. They're used here to
 // set pin numbers:
-const int buttonPins[NUM_BUBTTON]; //{2, 3, 6, 5};     // the numbers of the pushbutton pins
-int preButtonState[NUM_BUBTTON]; // = {LOW, LOW, LOW, LOW};
+const int buttonPins[NUM_BUBTTON] = {2} ; //{2, 3, 6, 5};     // the numbers of the pushbutton pins
+int preButtonState[NUM_BUBTTON] = {LOW}; // = {LOW, LOW, LOW, LOW};
 int preKnobValue = 0;
 int knobCount = 0;
 const int ledPin =  3;      // the number of the LED pin
@@ -19,6 +16,9 @@ const char led_1 = '1';
 // variables will change:
 int buttonState = 0;         // variable for reading the pushbutton status
 
+
+int count = 0;
+const int KNOB_MAX = 20000;
 
 void setup() {
   // initialize the LED pin as an output:
@@ -56,16 +56,19 @@ void loop() {
   }
 
   // knob
-  int knob_val = analogRead(KNOB_PIN) / 4;
-  if(abs(knob_val - preKnobValue) > KNOB_THRESHOLD){
-    // handle jump
-    //if(abs(knob_val - preKnobValue) > KNOB_JUMP && knobCount < 100){
-    //  knobCount++;
-    //}
-    knobCount = 0;
-    preKnobValue = knob_val;
-    Serial.write(3);
-    Serial.write(knob_val); // fit into one byte
+  if (count++ == KNOB_MAX) {
+    int knob_val = analogRead(KNOB_PIN) / 4;
+    if (knob_val != preKnobValue) {
+      // handle jump
+      //if(abs(knob_val - preKnobValue) > KNOB_JUMP && knobCount < 100){
+      //  knobCount++;
+      //}
+      knobCount = 0;
+      preKnobValue = knob_val;
+      Serial.write(3);
+      Serial.write(knob_val); // fit into one byte
+    }
+    count = 0;
   }
 
   if (Serial.available() == 2) {
