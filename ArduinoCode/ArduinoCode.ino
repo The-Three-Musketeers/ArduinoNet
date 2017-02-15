@@ -1,12 +1,15 @@
 #include <SoftwareSerial.h>
 
-#define NUM_BUBTTON 1
+#define NUM_BUTTON 1
 #define KNOB_PIN 0
 
 // constants won't change. They're used here to
 // set pin numbers:
-const int buttonPins[NUM_BUBTTON] = {2} ; //{2, 3, 6, 5};     // the numbers of the pushbutton pins
-int preButtonState[NUM_BUBTTON] = {LOW}; // = {LOW, LOW, LOW, LOW};
+const int buttonPins[NUM_BUTTON] = {2} ; //{2, 3, 6, 5};     // the numbers of the pushbutton pins
+int preButtonState[NUM_BUTTON] = {LOW}; // = {LOW, LOW, LOW, LOW};
+unsigned long lastDebounceTime[NUM_BUTTON] = {0};  // the last time the output pin was toggled
+unsigned long debounceDelay = 10;    // the debounce time; increase if the output flickers
+
 int preKnobValue = 0;
 int knobCount = 0;
 const int ledPin =  3;      // the number of the LED pin
@@ -25,9 +28,10 @@ void setup() {
   pinMode(ledPin, OUTPUT);
   // initialize the pushbutton pin as an input:
   int i;
-  for (i = 0; i < NUM_BUBTTON; i++) {
+  for (i = 0; i < NUM_BUTTON; i++) {
     int buttonPin = buttonPins[i];
-    pinMode(buttonPin, INPUT);
+    pinMode(buttonPin, INPUT_PULLUP);
+    //digitalWrite(buttonPin, HIGH);
   }
   Serial.begin(9600);
   while (!Serial) {
@@ -39,19 +43,29 @@ void loop() {
   // check if the pushbutton is pressed.
   // if it is, the buttonState is HIGH:
   int i;
-  for (i = 0; i < NUM_BUBTTON; i++) {
+  for (i = 0; i < NUM_BUTTON; i++) {
     int buttonPin = buttonPins[i];
     // read the state of the pushbutton value:
     buttonState = digitalRead(buttonPin);
-    if (buttonState == HIGH) {
-      if (preButtonState[buttonPin] == LOW) { // this is a button press
-        preButtonState[buttonPin] = HIGH;
-        Serial.write(1);
-        Serial.write(i);
-      }
-    } else {
+    if (preButtonState[i] != buttonState) {
+      lastDebounceTime[i] = millis();
+    }
+  }
+  for (i = 0; i < NUM_BUTTON; i++) {
+    if (millis() - lastDebounceTime[i] > debounceDelay) {
+      int buttonPin = buttonPins[i];
+      // read the state of the pushbutton value:
+      buttonState = digitalRead(buttonPin);
+      if (buttonState == HIGH) {
+        if (preButtonState[buttonPin] == LOW) { // this is a button press
+          preButtonState[buttonPin] = HIGH;
+          Serial.write(1);
+          Serial.write(i);
+        }
+      } else {
 
-      preButtonState[buttonPin] = LOW;
+        preButtonState[buttonPin] = LOW;
+      }
     }
   }
 
