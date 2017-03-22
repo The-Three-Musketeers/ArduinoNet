@@ -1,17 +1,19 @@
 #include <SoftwareSerial.h>
 
-#define NUM_BUTTON 1
+#define NUM_BUTTON 4
 #define KNOB_PIN 0
+#define SLIDE_PIN 1
 
 // constants won't change. They're used here to
 // set pin numbers:
-const int buttonPins[NUM_BUTTON] = {2} ; //{2, 3, 6, 5};     // the numbers of the pushbutton pins
+const int buttonPins[NUM_BUTTON] = {0, 2, 7, 8};     // the numbers of the pushbutton pins
 int preButtonState[NUM_BUTTON] = {LOW}; // = {LOW, LOW, LOW, LOW};
 unsigned long lastDebounceTime[NUM_BUTTON] = {0};  // the last time the output pin was toggled
-unsigned long debounceDelay = 10;    // the debounce time; increase if the output flickers
+unsigned long debounceDelay = 1;    // the debounce time; increase if the output flickers
 
 int preKnobValue = 0;
-int knobCount = 0;
+int preSlideValue = 0;
+int knobCount = 0;`
 const int ledPin =  3;      // the number of the LED pin
 
 const char led_1 = '1';
@@ -21,7 +23,9 @@ int buttonState = 0;         // variable for reading the pushbutton status
 
 
 int count = 0;
+int btnCount = 0;
 const int KNOB_MAX = 20000;
+const int BUTTON_MAX = 500;
 
 void setup() {
   // initialize the LED pin as an output:
@@ -42,17 +46,9 @@ void setup() {
 void loop() {
   // check if the pushbutton is pressed.
   // if it is, the buttonState is HIGH:
-  int i;
-  for (i = 0; i < NUM_BUTTON; i++) {
-    int buttonPin = buttonPins[i];
-    // read the state of the pushbutton value:
-    buttonState = digitalRead(buttonPin);
-    if (preButtonState[i] != buttonState) {
-      lastDebounceTime[i] = millis();
-    }
-  }
-  for (i = 0; i < NUM_BUTTON; i++) {
-    if (millis() - lastDebounceTime[i] > debounceDelay) {
+  if (btnCount++ == BUTTON_MAX) {
+    int i;
+    for (i = 0; i < NUM_BUTTON; i++) {
       int buttonPin = buttonPins[i];
       // read the state of the pushbutton value:
       buttonState = digitalRead(buttonPin);
@@ -67,31 +63,35 @@ void loop() {
         preButtonState[buttonPin] = LOW;
       }
     }
+    btnCount = 0;
   }
 
   // knob
   if (count++ == KNOB_MAX) {
     int knob_val = analogRead(KNOB_PIN) / 4;
     if (knob_val != preKnobValue) {
-      // handle jump
-      //if(abs(knob_val - preKnobValue) > KNOB_JUMP && knobCount < 100){
-      //  knobCount++;
-      //}
       knobCount = 0;
       preKnobValue = knob_val;
       Serial.write(3);
       Serial.write(knob_val); // fit into one byte
     }
+
+    int slide_val = analogRead(SLIDE_PIN) / 4;
+    if (slide_val != preSlideValue) {;
+      preSlideValue = slide_val;
+      Serial.write(2);
+      Serial.write(slide_val); // fit into one byte
+    }
+    
     count = 0;
   }
-
-  if (Serial.available() == 2) {
-    byte command = Serial.read();
-    byte value = Serial.read();
-    if (command == led_1) {
-      bool ledValue = value == '1';
-      digitalWrite(ledPin, ledValue);
-    }
-  }
+  //  if (Serial.available() == 2) {
+  //    byte command = Serial.read();
+  //    byte value = Serial.read();
+  //    if (command == led_1) {
+  //      bool ledValue = value == '1';
+  //      digitalWrite(ledPin, ledValue);
+  //    }
+  //  }
 
 }
