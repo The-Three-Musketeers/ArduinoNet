@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Management;
@@ -41,12 +41,43 @@ namespace ArduinoNet
         /// <summary>
         /// Event called when the value of the slider is changed
         /// </summary>
-        public event ArduinoEventHandler OnSlideChanged;
+        public event ArduinoEventHandler OnSlideChanged
+        {
+            add
+            {
+                _onSlideChanged -= value;
+                _onSlideChanged += value;
+            }
+            remove
+            {
+                _onSlideChanged -= value;
+            }
+        }
 
+        private event ArduinoEventHandler _onSlideChanged;
+
+        
         /// <summary>
         /// Event called when the value of the knob is changed
         /// </summary>
-        public event ArduinoEventHandler OnKnobChanged;
+        public event ArduinoEventHandler OnKnobChanged
+        {
+            add
+            {
+                _onKnobChanged -= value;
+                _onKnobChanged += value;
+            }
+            remove
+            {
+                _onKnobChanged -= value;
+            }
+        }
+
+
+        private event ArduinoEventHandler _onKnobChanged;
+
+
+
 
         private Serial(string serialName)
         {
@@ -151,10 +182,10 @@ namespace ArduinoNet
                     _onButtonPressed?.Invoke(this, arg);
                     break;
                 case Command.Knob:
-                    OnKnobChanged?.Invoke(this, arg);
+                    _onKnobChanged?.Invoke(this, arg);
                     break;
                 case Command.Slide:
-                    OnSlideChanged?.Invoke(this, arg);
+                    _onSlideChanged?.Invoke(this, arg);
                     break;
                 default:
                     break;
@@ -177,7 +208,7 @@ namespace ArduinoNet
                     var rawCommand = ConvertCommandToString(command);
                     Write(rawCommand);
                 }
-                Thread.Sleep(100); // 10 Hz refresh rate
+                //Thread.Sleep(100); // 10 Hz refresh rate
 
                 // see if there is anything to be read
                 var from = Read();
@@ -195,7 +226,7 @@ namespace ArduinoNet
             stream.BaseStream.Flush();
         }
 
-        private string Read(int timeout = 200)
+        private string Read(int timeout = 100)
         {
             stream.ReadTimeout = timeout;
             try
