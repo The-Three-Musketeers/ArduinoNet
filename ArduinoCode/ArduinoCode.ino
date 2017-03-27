@@ -1,19 +1,19 @@
 #include <SoftwareSerial.h>
 
-#define NUM_BUTTON 4
+#define NUM_BUTTON 7
 #define KNOB_PIN 0
 #define SLIDE_PIN 1
 
 // constants won't change. They're used here to
 // set pin numbers:
-const int buttonPins[NUM_BUTTON] = {0, 2, 7, 8};     // the numbers of the pushbutton pins
+const int buttonPins[NUM_BUTTON] = {0, 2, 7, 8, 22, 23, 24};     // the numbers of the pushbutton pins
 int preButtonState[NUM_BUTTON] = {LOW}; // = {LOW, LOW, LOW, LOW};
 unsigned long lastDebounceTime[NUM_BUTTON] = {0};  // the last time the output pin was toggled
 unsigned long debounceDelay = 1;    // the debounce time; increase if the output flickers
 
 int preKnobValue = 0;
 int preSlideValue = 0;
-int knobCount = 0;`
+int knobCount = 0;
 const int ledPin =  3;      // the number of the LED pin
 
 const char led_1 = '1';
