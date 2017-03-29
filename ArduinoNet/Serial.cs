@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO.Ports;
 using System.Management;
@@ -144,16 +144,23 @@ namespace ArduinoNet
         /// <returns>An Arduino serial instance connected to the serial port</returns>
         public static Serial Connect(string serialName)
         {
-            if (string.IsNullOrEmpty(serialName))
-                return null;
-            if (currentConnection.ContainsKey(serialName))
+            try
             {
-                // already connected;
-                return currentConnection[serialName];
+                if (string.IsNullOrEmpty(serialName))
+                    return null;
+                if (currentConnection.ContainsKey(serialName))
+                {
+                    // already connected;
+                    return currentConnection[serialName];
+                }
+                else
+                {
+                    return new Serial(serialName);
+                }
             }
-            else
+            catch
             {
-                return new Serial(serialName);
+                return null;
             }
         }
 

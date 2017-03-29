@@ -7,7 +7,7 @@
 // constants won't change. They're used here to
 // set pin numbers:
 const int buttonPins[NUM_BUTTON] = {0, 2, 7, 8, 22, 23, 24};     // the numbers of the pushbutton pins
-int preButtonState[NUM_BUTTON] = {LOW}; // = {LOW, LOW, LOW, LOW};
+int preButtonState[NUM_BUTTON] = {LOW, LOW, LOW, LOW, LOW, LOW, LOW};
 unsigned long lastDebounceTime[NUM_BUTTON] = {0};  // the last time the output pin was toggled
 unsigned long debounceDelay = 1;    // the debounce time; increase if the output flickers
 
@@ -46,25 +46,26 @@ void setup() {
 void loop() {
   // check if the pushbutton is pressed.
   // if it is, the buttonState is HIGH:
+  // hard debounce
   if (btnCount++ == BUTTON_MAX) {
-    int i;
-    for (i = 0; i < NUM_BUTTON; i++) {
+    for (int i = 0; i < NUM_BUTTON; i++) {
       int buttonPin = buttonPins[i];
       // read the state of the pushbutton value:
       buttonState = digitalRead(buttonPin);
       if (buttonState == HIGH) {
-        if (preButtonState[buttonPin] == LOW) { // this is a button press
-          preButtonState[buttonPin] = HIGH;
+        if (preButtonState[i] == LOW) { // this is a button press
+          preButtonState[i] = HIGH;
           Serial.write(1);
           Serial.write(i);
         }
       } else {
 
-        preButtonState[buttonPin] = LOW;
+        preButtonState[i] = LOW;
       }
     }
     btnCount = 0;
   }
+
 
   // knob
   if (count++ == KNOB_MAX) {
@@ -77,12 +78,13 @@ void loop() {
     }
 
     int slide_val = analogRead(SLIDE_PIN) / 4;
-    if (slide_val != preSlideValue) {;
+    if (slide_val != preSlideValue) {
+      ;
       preSlideValue = slide_val;
       Serial.write(2);
       Serial.write(slide_val); // fit into one byte
     }
-    
+
     count = 0;
   }
   //  if (Serial.available() == 2) {
