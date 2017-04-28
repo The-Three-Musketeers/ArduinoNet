@@ -1,13 +1,13 @@
 #include <SoftwareSerial.h>
 
-#define NUM_BUTTON 7
+#define NUM_BUTTON 6
 #define KNOB_PIN 0
 #define SLIDE_PIN 1
 
 // constants won't change. They're used here to
 // set pin numbers:
-const int buttonPins[NUM_BUTTON] = {0, 2, 7, 8, 22, 23, 24};     // the numbers of the pushbutton pins
-int preButtonState[NUM_BUTTON] = {LOW, LOW, LOW, LOW, LOW, LOW, LOW};
+const int buttonPins[NUM_BUTTON] = {2, 3, 4, 5, 6, 7};     // the numbers of the pushbutton pins
+int preButtonState[NUM_BUTTON] = {LOW, LOW, LOW, LOW, LOW, LOW};
 unsigned long lastDebounceTime[NUM_BUTTON] = {0};  // the last time the output pin was toggled
 unsigned long debounceDelay = 1;    // the debounce time; increase if the output flickers
 
@@ -70,7 +70,7 @@ void loop() {
   // knob
   if (count++ == KNOB_MAX) {
     int knob_val = analogRead(KNOB_PIN) / 4;
-    if (knob_val != preKnobValue) {
+    if (abs(knob_val - preKnobValue) > 1) {
       knobCount = 0;
       preKnobValue = knob_val;
       Serial.write(3);
@@ -78,8 +78,7 @@ void loop() {
     }
 
     int slide_val = analogRead(SLIDE_PIN) / 4;
-    if (slide_val != preSlideValue) {
-      ;
+    if (abs(slide_val - preSlideValue) > 1) {
       preSlideValue = slide_val;
       Serial.write(2);
       Serial.write(slide_val); // fit into one byte
